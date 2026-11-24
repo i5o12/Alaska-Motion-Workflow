@@ -15,3 +15,20 @@
 - **Custom Background (Looping MP4):** Memasukkan *asset* video `.mp4` sebagai latar belakang, menyesuaikan ukuran ke *composition*, dan mengatur *looping*.
 
 ---
+
+## Struktur Proyek
+
+```text
+Alaska!/
+├── CSXS/
+│   └── manifest.xml
+├── client/
+│   ├── index.html
+│   └── main.js
+├── host/
+│   ├── index.jsx
+│   ├── align.jsx
+│   ├── precomp.jsx
+│   └── graph.jsx
+└── lib/
+    └── CSInterface.js
