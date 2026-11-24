@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Alaska!</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #1d1d1d;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      font-size: 11px;
+      margin: 10px;
+      position: relative;
+      isolation: isolate;
+    }
+    #themeImage, #themeVideo {
+      display: none;
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      pointer-events: none;
+    }
+    #themeOverlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      opacity: 0.58;
+      z-index: -1;
+      pointer-events: none;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+    .brand { font-size: 14px; font-weight: 700; color: #fff; }
+    .ver { font-size: 10px; color: #888; }
+    .section {
+      background: rgba(37, 37, 37, 0.91);
+      border: 1px solid #323232;
+      border-radius: 5px;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-weight: 700;
+      font-size: 11px;
+      color: #fff;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+      margin-bottom: 5px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px;
+      align-items: center;
+    }
+    input[type="text"], input[type="number"], select {
+      background: #171717;
+      border: 1px solid #3a3a3a;
+      color: #eee;
+      border-radius: 3px;
+      padding: 5px 6px;
+      font-size: 11px;
+      width: 100%;
+    }
+    select:invalid { color:#858b91; }
+    select { color-scheme:dark; accent-color:var(--accent); border-color:rgba(var(--accent-rgb),0.32); }
+    select:focus-visible { outline:1px solid var(--accent); outline-offset:1px; }
+    select option { background-color:#202328; color:#e7ebef; }
+    select option:checked:not(:disabled) { background-color:var(--accent); color:var(--accent-foreground); }
+    select option:disabled { background-color:#202328; color:#9299a1; }
+    textarea {
+      background: #171717;
+      border: 1px solid #3a3a3a;
+      color: #eee;
+      border-radius: 3px;
+      padding: 6px;
+      font: inherit;
+      width: 100%;
+      min-height: 58px;
+      resize: vertical;
+    }
+    input[type="color"] { display:none; }
+    button {
+      background-color: #2c2c2c;
+      color: #e5e5e5;
+      border: 1px solid #3d3d3d;
+      padding: 6px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .file-picker {
+      display: block;
+      text-align: center;
+      background: #2c2c2c;
+      color: #e5e5e5;
+      border: 1px solid #3d3d3d;
+      padding: 7px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .file-picker:hover { background: #3a3a3a; }
+    .file-picker input { display: none; }
+    button:hover { background-color: #3a3a3a; }
+    button.primary {
+      background-color: #2d8ceb;
+      border-color: #2d8ceb;
+      color: #fff;
+      width: 100%;
+    }
+    button.primary:hover { background-color: #1f74c9; }
+    .row-gap { margin-top: 6px; }
+    .hint { color: #999; font-size: 10px; line-height: 1.4; margin-top: 5px; }
+    .feature-note {
+      border-left: 2px solid #d5a84b;
+      background: #211f1a;
+      color: #d7c89f;
+      padding: 7px;
+      line-height: 1.4;
+      margin-bottom: 7px;
+    }
+    .inline-color { display: flex; align-items: center; gap: 7px; }
+    .inline-color input[type="text"] { flex: 1; }
+    label.check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height:34px;
+      padding:6px 9px;
+      margin-top: 7px;
+      border:1px solid rgba(255,255,255,0.11);
+      border-radius:8px;
+      background:rgba(255,255,255,0.035);
+      color:rgba(229,233,238,var(--text-opacity));
+      font-size:9px;
+      cursor: pointer;
+      transition:background .15s ease,border-color .15s ease;
+    }
+    label.check:hover { border-color:rgba(var(--accent-rgb),0.38); background:rgba(var(--accent-rgb),0.075); }
+    input[type="checkbox"] {
+      appearance:none;
+      -webkit-appearance:none;
+      flex:0 0 16px;
+      width:16px;
+      height:16px;
+      margin:0;
+      display:grid;
+      place-content:center;
+      border:1px solid rgba(190,200,210,0.52);
+      border-radius:4px;
+      background:rgba(10,12,15,0.55);
+      cursor:pointer;
+      transition:background .14s ease,border-color .14s ease,box-shadow .14s ease;
+    }
+    input[type="checkbox"]:checked { border-color:var(--accent); background:var(--accent); }
+    input[type="checkbox"]:checked:after {
+      content:'';
+      width:7px;
+      height:4px;
+      border:solid var(--accent-foreground);
+      border-width:0 0 2px 2px;
+      transform:rotate(-45deg) translate(1px,-1px);
+    }
+    input[type="checkbox"]:focus-visible { outline:2px solid rgba(var(--accent-rgb),0.55); outline-offset:2px; }
+    input[type="checkbox"]:disabled { opacity:0.45; cursor:not-allowed; }
+    #status {
+      background: #161616;
+      border: 1px solid #2e2e2e;
+      border-radius: 4px;
+      padding: 7px;
+      color: #e5e9ee;
+      font-size: 11px;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+    body { margin: 7px; font-size: 10px; }
+    .header { padding: 2px 2px 7px; margin-bottom: 7px; }
+    .brand { font-size: 13px; letter-spacing: 0.2px; }
+    .ver { font-size: 9px; }
+    .dev-badge {
+      display: none;
+      margin-left: 6px;
+      padding: 2px 5px;
+      color: #ffd166;
+      background: rgba(130,90,0,0.28);
+      border: 1px solid rgba(255,209,102,0.35);
+      border-radius: 8px;
+      font-size: 8px;
+      vertical-align: middle;
+    }
+    .section {
+      padding: 8px;
+      margin-bottom: 7px;
+      border-color: rgba(255,255,255,0.12);
+      border-radius: 8px;
+      background: rgba(24,27,30,0.78);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.14);
+      -webkit-backdrop-filter: blur(7px);
+      backdrop-filter: blur(7px);
+    }
+    .section-title {
+      margin-bottom: 6px;
+      font-size: 10px;
+      text-transform: none;
+      letter-spacing: 0.15px;
+      color: #f0f3f6;
+    }
+    .grid-3 { gap: 4px; margin-bottom: 4px; }
+    .grid-2 { gap: 5px; }
+    button {
+      min-height: 24px;
+      padding: 4px 6px;
+      border-radius: 5px;
+      border-color: rgba(255,255,255,0.14);
+      background: rgba(48,53,58,0.86);
+      font-size: 9px;
+      font-weight: 600;
+    }
+    button:hover { background: rgba(72,79,86,0.95); }
+    button.primary { background: var(--accent); border-color: var(--accent); }
+    .file-picker { padding:6px; border-radius:9px; border-color:rgba(var(--accent-rgb),0.38); background:rgba(var(--accent-rgb),0.12); font-size:8px; transition:background .15s ease,border-color .15s ease; }
+    .file-picker:before { content:'◉'; margin-right:6px; color:var(--accent); }
+    .file-picker:hover { background:rgba(var(--accent-rgb),0.2); border-color:var(--accent); }
+    .hint { font-size: 9px; }
+    input[type="text"], input[type="number"], select {
+      padding: 5px;
+      border-radius: 5px;
+      font-size: 10px;
+    }
+    textarea { min-height: 48px; border-radius: 5px; }
+    .feature-note { padding: 6px; font-size: 9px; }
+    .swatches { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 24px; }
+    .palette-swatch {
+      width: 18px;
+      height: 18px;
+      min-height: 18px;
+      padding: 0;
+      border: 2px solid rgba(255,255,255,0.22);
+      border-radius: 50%;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.35);
+    }
+    .palette-swatch.selected { outline: 2px solid #fff; outline-offset: 2px; }
+    .palette-tools { display: grid; grid-template-columns: auto 1fr; gap: 6px; align-items: center; margin-top: 7px; }
+    .color-trigger { width:32px; height:27px; min-height:27px; padding:3px; border:1px solid rgba(var(--accent-rgb),0.42); border-radius:8px; background:rgba(255,255,255,0.07); }
+    .color-trigger:before { content:''; display:block; width:100%; height:100%; border-radius:5px; background:var(--swatch-color,#2585e8); box-shadow:inset 0 0 0 1px rgba(255,255,255,0.24); }
+    .compact-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+    details.section { padding: 8px; }
+    details > summary { cursor: pointer; color: #f0f3f6; font-weight: 700; font-size: 10px; }
+    #status { padding: 4px 7px; border-radius: 6px; font-size: 8px; line-height:1.25; background: rgba(18,20,22,0.85); }
+    .activity-section { margin-top: 7px; }
+    body {
+      height: 100vh;
+      min-height: 0;
+      margin: 0;
+      padding: 7px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .header { flex: 0 0 auto; }
+    .workspace {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 0 2px 3px;
+      scrollbar-width: thin;
+      scrollbar-color: #555 transparent;
+    }
+    .feature-panel { display: none; }
+    .feature-panel.active { display: block; }
+    #status { flex: 0 0 auto; margin: 3px 0 5px; }
+    .bottom-nav {
+      flex: 0 0 auto;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 5px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 9px;
+      background: rgba(18,20,22,0.94);
+      box-shadow: 0 -3px 14px rgba(0,0,0,0.2);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+    }
+    .nav-button {
+      min-height: 42px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 3px 1px;
+      border-color: transparent;
+      background: transparent;
+      color: #aeb5bc;
+      font-size: 8px;
+    }
+    .nav-button:hover { background: rgba(255,255,255,0.06); }
+    .nav-button.active {
+      color: var(--accent);
+      border-color: rgba(var(--accent-rgb),0.38);
+      background: rgba(var(--accent-rgb),0.16);
+    }
+    .nav-icon { font-size: 14px; line-height: 14px; }
+    :root { --panel-opacity: 0.78; --text-opacity: 1; --accent: #2585e8; --accent-rgb: 37,133,232; --accent-foreground:#17191c; }
+    body { color: rgba(224,224,224,var(--text-opacity)); }
+    .section { background: rgba(24,27,30,var(--panel-opacity)); }
+    .section-title, details > summary { color: rgba(240,243,246,var(--text-opacity)); }
+    .hint { color: rgba(178,184,190,var(--text-opacity)); }
+    .hint.themed-note { padding:5px 7px; border-left:2px solid var(--accent); border-radius:0 4px 4px 0; background:rgba(var(--accent-rgb),0.1); }
+    button, input, select, textarea, .check, .feature-note, .ver, .nav-button, .file-picker, .align-label { color: rgba(229,233,238,var(--text-opacity)); }
+    input[type="color"] { color: #eee; }
+    .feature-note { background: rgba(33,31,26,var(--panel-opacity)); }
+    #status { color: rgba(240,243,246,var(--text-opacity)); border-color:rgba(var(--accent-rgb),0.48); background:rgba(var(--accent-rgb),0.13); }
+    .bottom-nav { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .nav-button { min-height: 36px; }
+    .graph-preview {
+      width: 100%; height: 158px; display: block; margin-top: 7px;
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 6px;
+      background: rgba(10,12,14,0.48);
+      touch-action: none;
+    }
+    .graph-grid { stroke:rgba(255,255,255,0.09); stroke-width:0.7; }
+    .graph-diagonal { stroke:rgba(255,255,255,0.14); stroke-width:0.8; stroke-dasharray:3 3; }
+    #graphCurve { stroke:var(--accent); stroke-width:3.5; stroke-linecap:round; filter:drop-shadow(0 0 3px rgba(var(--accent-rgb),0.5)); }
+    #graphFill { fill:rgba(var(--accent-rgb),0.13); }
+    .graph-templates { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 6px; }
+    .graph-template { padding: 4px; min-height: 58px; font-size: 8px; }
+    .graph-template svg { display: block; width: 100%; height: 27px; margin-bottom: 2px; }
+    .graph-handle { cursor: grab; stroke: #111820; stroke-width: 2; touch-action: none; }
+    .graph-handle:active { cursor: grabbing; }
+    .graph-tangent { stroke: rgba(255,255,255,0.42); stroke-width: 1.2; stroke-dasharray: 3 2; }
+    .graph-axis-label { fill: #8d99a5; font-size: 7px; }
+    .graph-readout { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-top:6px; }
+    .graph-readout span { padding:5px 7px; border:1px solid rgba(var(--accent-rgb),0.32); border-radius:6px; background:rgba(var(--accent-rgb),0.12); color:rgba(240,243,246,var(--text-opacity)); font-size:8px; }
+    .graph-readout span:before { content:'●'; margin-right:4px; color:var(--accent); font-size:7px; }
+    .graph-help { display:flex; align-items:center; gap:5px; margin-top:5px; color:#8e98a3; font-size:8px; }
+    .graph-help:before { content:'↔'; color:var(--accent); font-size:12px; }
+    .preset-row { display: grid; grid-template-columns: 1fr auto; gap: 5px; }
+    .saved-preset-row { display:grid; grid-template-columns:1fr auto auto; gap:4px; }
+    .history-list { display: grid; gap: 4px; }
+    .history-item { display: flex; justify-content: space-between; gap: 5px; align-items: center; padding: 4px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); }
+    .palette-options { display:flex; gap:4px; margin:5px 0; }
+    .palette-options #btnArrangePalette { margin-left:auto; padding:3px 7px; font-size:8px; border-color:rgba(var(--accent-rgb),0.35); }
+    .palette-options #btnArrangePalette:before { content:'↕'; margin-right:4px; color:var(--accent); }
+    .palette-count { min-width: 27px; padding: 3px; }
+    .palette-count.active { color:var(--accent-foreground); background:var(--accent); border-color:var(--accent); }
+    .swatches { display:grid; grid-template-columns:repeat(var(--palette-columns, 5),minmax(0,1fr)); gap:2px; align-items:stretch; }
+    .palette-swatch { position:relative; width:auto; height:42px; min-height:42px; padding:0; border:1px solid rgba(255,255,255,0.22); border-radius:0; box-shadow:inset 0 0 0 1px rgba(0,0,0,0.08); }
+    .palette-swatch:not(.empty) { cursor:grab; }
+    .palette-swatch.dragging { opacity:0.45; }
+    .palette-swatch.selected { outline:2px solid var(--accent); outline-offset:1px; z-index:1; }
+    .palette-swatch.empty { border:1px dashed rgba(var(--accent-rgb),0.42); background:rgba(var(--accent-rgb),0.045); }
+    .palette-swatch.empty:after { content:'+'; color:var(--accent); font-size:16px; font-weight:400; }
+    .palette-history { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; }
+    .palette-history > .hint { grid-column:1 / -1; }
+    .palette-history .palette-swatch { height:26px; min-height:26px; }
+    .palette-save-row { display:grid; grid-template-columns:1fr auto; gap:5px; margin-top:7px; }
+    .saved-palettes { display:grid; gap:5px; margin-top:5px; }
+    .saved-palette { padding:6px; border:1px solid rgba(255,255,255,0.11); border-radius:6px; background:rgba(0,0,0,0.12); }
+    .saved-palette-head { display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:5px; }
+    .saved-palette-name { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:9px; font-weight:700; }
+    .saved-palette-colors { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:3px; margin-bottom:5px; }
+    .saved-palette-color { height:15px; border-radius:3px; border:1px solid rgba(255,255,255,0.15); }
+    .saved-palette-actions { display:grid; grid-template-columns:1fr auto; gap:4px; }
+    .saved-palette-actions button, .palette-history-tools button { min-height:21px; padding:2px 6px; font-size:8px; }
+    .palette-subtitle { display:flex; justify-content:space-between; align-items:center; margin-top:9px; font-size:9px; font-weight:700; }
+    .palette-empty { color:#858b91; font-size:9px; font-style:italic; padding:4px 1px; }
+    .palette-divider { border:0; border-top:1px solid rgba(255,255,255,0.1); margin:9px 0 6px; }
+    .theme-color-trigger { width:25px; height:25px; min-height:25px; border-radius:50%; }
+    .theme-color-trigger:before { border-radius:50%; }
+    details.disclosure { padding:6px 8px; }
+    details.disclosure > summary { list-style:none; display:flex; align-items:center; gap:6px; }
+    details.disclosure > summary::-webkit-details-marker { display:none; }
+    details.disclosure > summary:before { content:'▸'; color:#78baff; transition:transform .15s ease; }
+    details.disclosure[open] > summary:before { transform:rotate(90deg); }
+    .disclosure-content { padding-top:6px; }
+    .align-group { margin: 8px 0; }
+    .align-label { margin-bottom: 4px; color:#c8d0d8; font-size:9px; font-weight:700; }
+    .align-button { min-height:34px; display:flex; flex-direction:column; gap:2px; align-items:center; justify-content:center; }
+    .align-mark { font-size:13px; line-height:13px; color:#a9d2ff; }
+    .ai-proposal { padding:6px; margin-top:5px; background:rgba(255,255,255,0.05); border-radius:5px; }
+    .ai-proposal-row { display:flex; align-items:center; gap:6px; }
+    .ai-proposal-row button { margin-left:auto; }
+    .ai-shell { padding:0; overflow:hidden; }
+    .ai-chat-head { display:flex; align-items:center; gap:8px; padding:9px; border-bottom:1px solid rgba(255,255,255,0.1); background:rgba(var(--accent-rgb),0.09); }
+    .ai-avatar { display:grid; place-items:center; width:27px; height:27px; border:1px solid rgba(var(--accent-rgb),0.42); border-radius:9px; background:rgba(var(--accent-rgb),0.18); color:var(--accent); font-size:14px; }
+    .ai-head-copy { display:grid; gap:2px; }
+    .ai-head-copy strong { font-size:10px; }
+    .ai-head-copy span { color:#929ca6; font-size:8px; }
+    .ai-chat-log { display:grid; align-content:start; gap:8px; max-height:190px; min-height:110px; overflow-y:auto; padding:9px; }
+    .ai-message { max-width:94%; padding:7px 9px; border:1px solid rgba(255,255,255,0.09); border-radius:10px; background:rgba(255,255,255,0.055); color:#e4e9ee; font-size:9px; line-height:1.45; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .ai-message.user { justify-self:end; border-color:rgba(var(--accent-rgb),0.3); background:rgba(var(--accent-rgb),0.17); }
+    .ai-message.assistant { justify-self:start; }
+    .ai-chat-input { display:grid; grid-template-columns:1fr 54px; gap:6px; padding:8px; border-top:1px solid rgba(255,255,255,0.09); }
+    .ai-chat-input textarea { min-height:38px; max-height:88px; resize:vertical; font-size:9px; }
+    .ai-chat-input button { align-self:stretch; min-height:36px; }
+    .ai-approval { padding:0 9px 8px; }
+    .ai-approval label { font-size:8px; }
+    .ai-capabilities { margin-top:7px; }
+    .ai-action-list { padding:0 9px 9px; }
+    .ai-action-list:empty { display:none; }
+    input[type="range"] { accent-color:var(--accent); }
+    #graphCurve { stroke:var(--accent); }
+    .theme-presets { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; margin:6px 0; }
+    .theme-chip { min-width:0; height:28px; min-height:28px; padding:2px; border:1px solid rgba(255,255,255,0.22); }
+    .theme-chip.selected { outline:2px solid #fff; outline-offset:1px; }
+    .custom-theme-row { display:grid; grid-template-columns:auto 1fr; gap:7px; align-items:center; }
+    .modal-overlay { display:none; position:fixed; inset:0; z-index:20; align-items:center; justify-content:center; padding:16px; background:rgba(4,7,10,0.52); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+    .modal-overlay.open { display:flex; }
+    .confirm-dialog { width:100%; max-width:310px; padding:14px; border:1px solid rgba(var(--accent-rgb),0.55); border-radius:16px; background:rgba(30,34,40,0.78); -webkit-backdrop-filter:blur(22px) saturate(150%); backdrop-filter:blur(22px) saturate(150%); box-shadow:0 18px 48px rgba(0,0,0,0.45),inset 0 1px rgba(255,255,255,0.12); }
+    .confirm-title { display:flex; align-items:center; gap:7px; color:#f3f6fa; font-size:12px; font-weight:700; }
+    .confirm-message { margin:9px 0 13px; color:#c1c8d0; font-size:10px; line-height:1.45; overflow-wrap:anywhere; }
+    .confirm-actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+    .confirm-actions .primary { width:auto; }
+    .theme-accent { color:var(--accent); }
+    #graphOutHandle, #graphInHandle { fill:var(--accent); stroke:#fff; stroke-width:1.5; }
+    .align-mark { color:var(--accent); }
+    button.primary { background:var(--accent); border-color:var(--accent); transition:filter .12s ease, background-color .12s ease; }
+    button.primary:hover, button.primary:focus-visible { background:var(--accent); border-color:var(--accent); filter:brightness(.78); }
+    button:not(.primary):hover { filter:brightness(.82); }
+    button.primary { color:var(--accent-foreground); }
+    .palette-count.active { color:var(--accent-foreground); }
+    .nav-button.active { color:var(--accent-foreground); background:var(--accent); border-color:var(--accent); }
+    .nav-button.active .nav-icon { color:var(--accent-foreground); }
+    .palette-actions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .palette-history-tools { display:flex; justify-content:flex-end; margin-bottom:4px; }
+    .palette-history-tools button { min-height:20px; padding:2px 6px; font-size:8px; }
+    .setting-row { display:grid; grid-template-columns:42px 1fr 32px; gap:6px; align-items:center; margin:5px 0; }
+    .setting-row label { font-size:9px; color:rgba(229,233,238,var(--text-opacity)); }
+    .setting-row output { text-align:right; font-size:9px; }
+    .action-card { padding:9px; }
+    .action-card > .section-title { margin-bottom:8px; }
+    .action-main-button { width:100%; min-height:32px; border-radius:8px; }
+    .action-disclosure { margin-top:7px; }
+    .action-disclosure[open] { border-color:rgba(var(--accent-rgb),0.25); }
+    .action-fields { display:grid; grid-template-columns:minmax(0,1fr); gap:9px; padding-top:7px; }
+    .action-field { min-width:0; }
+    .action-field > label { display:block; margin:0 0 5px; color:#aeb8c2; font-size:8px; font-weight:700; letter-spacing:.45px; }
+    .action-field-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px; align-items:stretch; }
+    .action-field-row input { min-width:0; }
+    .action-field-row button { min-width:92px; white-space:nowrap; }
+    .true-comp-row { grid-template-columns:42px minmax(0,1fr) auto; }
+    .action-field-row .true-comp-count-label { display:flex; align-items:center; margin:0; font-size:8px; letter-spacing:0; }
+    .true-comp-row button { min-width:106px; }
+    .true-comp-hint { margin-top:4px; }
+    .action-toggle { margin-top:2px !important; }
+    .action-apply { width:100%; margin-top:7px; }
+    .action-beat-label { display:block; margin:0 0 5px; color:#aeb8c2; font-size:8px; font-weight:700; letter-spacing:.4px; }
+    input[type="number"], input[type="text"], select, textarea { color-scheme:dark; }
+    input[type="number"]:focus, input[type="text"]:focus, select:focus, textarea:focus { border-color:var(--accent); outline:1px solid rgba(var(--accent-rgb),0.28); }
+    @media (max-width:280px) {
+      .action-field-row { grid-template-columns:minmax(0,1fr); }
+      .action-field-row button { width:100%; }
+      .true-comp-row { grid-template-columns:42px minmax(0,1fr); }
+      .true-comp-row button { grid-column:1 / -1; }
+    }
+    .color-picker-overlay { display:none; position:fixed; inset:0; z-index:30; align-items:center; justify-content:center; padding:14px; background:rgba(4,7,10,0.48); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+    .color-picker-overlay.open { display:flex; }
+    .color-picker-dialog { width:100%; max-width:286px; padding:12px; border:1px solid rgba(var(--accent-rgb),0.48); border-radius:18px; background:rgba(29,33,39,0.76); -webkit-backdrop-filter:blur(24px) saturate(160%); backdrop-filter:blur(24px) saturate(160%); box-shadow:0 20px 55px rgba(0,0,0,0.52),inset 0 1px rgba(255,255,255,0.15); }
+    .color-picker-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:9px; color:#f4f6f8; font-size:11px; font-weight:700; }
+    .color-picker-close { width:25px; height:25px; min-height:25px; padding:0; border-radius:50%; color:#d5dbe1; font-size:14px; }
+    .color-plane { position:relative; height:150px; overflow:hidden; border:1px solid rgba(255,255,255,0.28); border-radius:12px; background-color:#2585e8; background-image:linear-gradient(to top,#000,transparent),linear-gradient(to right,#fff,transparent); touch-action:none; cursor:crosshair; box-shadow:inset 0 1px 5px rgba(0,0,0,0.2); }
+    .color-plane-cursor { position:absolute; width:13px; height:13px; border:2px solid #fff; border-radius:50%; box-shadow:0 1px 5px rgba(0,0,0,0.65); transform:translate(-50%,-50%); pointer-events:none; }
+    .color-hue { display:block; width:100%; height:18px; margin:9px 0; appearance:none; border:0; border-radius:99px; background:linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); cursor:pointer; }
+    .color-hue::-webkit-slider-thumb { width:16px; height:16px; appearance:none; border:2px solid #fff; border-radius:50%; background:var(--accent); box-shadow:0 1px 5px rgba(0,0,0,0.5); }
+    .color-hue::-moz-range-thumb { width:12px; height:12px; border:2px solid #fff; border-radius:50%; background:var(--accent); box-shadow:0 1px 5px rgba(0,0,0,0.5); }
+    .color-picker-fields { display:grid; grid-template-columns:30px 1fr; gap:7px; align-items:center; margin-bottom:10px; }
+    .color-preview { width:30px; height:30px; border:2px solid rgba(255,255,255,0.65); border-radius:50%; box-shadow:0 2px 8px rgba(0,0,0,0.3); }
+    .color-picker-fields label { font-size:8px; color:#aeb8c2; }
+    .color-picker-fields input { margin-top:3px; text-transform:uppercase; }
+    .color-picker-actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+    .color-picker-actions button { min-height:30px; border-radius:9px; }
+    .color-picker-actions .primary { width:auto; }
+    .section-icon, .nav-icon { color:var(--accent); }
+    .disclosure > summary:before { color:var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span class="brand">Alaska!<span class="dev-badge" id="devBadge">MOCK PREVIEW</span></span>
+    <span class="ver">MOTION TOOLKIT • 0.2</span>
+  </div>
+
+  <img id="themeImage" alt="">
+  <video id="themeVideo" muted loop playsinline></video>
+  <div id="themeOverlay"></div>
+
+  <main class="workspace">
+    <section class="feature-panel active" id="panelGraph">
+      <div class="section">
+        <div class="section-title"><span class="section-icon">⌁</span> &nbsp; Graph Editor</div>
+        <svg id="graphPreview" class="graph-preview" viewBox="0 0 240 90" role="img" aria-label="Graph easing preview">
+          <path class="graph-grid" d="M16 58 H224 M16 42 H224 M16 26 H224 M68 10 V74 M120 10 V74 M172 10 V74" fill="none"/>
+          <path class="graph-diagonal" d="M16 74 L224 10" fill="none"/>
+          <path d="M16 74 H224 M16 74 V10" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1"/>
+          <path id="graphFill" d="M16 74 C120 74 120 10 224 10 L224 74 Z"/>
+          <path id="graphOutTangent" class="graph-tangent" d="M16 74 L120 74"/>
+          <path id="graphInTangent" class="graph-tangent" d="M224 10 L120 10"/>
+          <path id="graphCurve" d="M16 74 C120 74 120 10 224 10" fill="none" stroke="#57b1ff" stroke-width="3"/>
+          <circle cx="16" cy="74" r="3" fill="#fff"/><circle cx="224" cy="10" r="3" fill="#fff"/>
+          <circle id="graphOutHandle" class="graph-handle" data-graph-handle="out" cx="120" cy="74" r="5" fill="#ffb84d"/>
+          <circle id="graphInHandle" class="graph-handle" data-graph-handle="in" cx="120" cy="10" r="5" fill="#72d6a5"/>
+        </svg>
+        <div class="graph-readout"><span id="graphOutReadout">Out: influence 50% · speed 0</span><span id="graphInReadout">In: influence 50% · speed 0</span></div>
+        <div class="graph-help">Seret handle untuk mengatur kurva easing.</div>
+        <div class="section-title row-gap">Graph Presets</div>
+        <div class="graph-templates">
+          <button type="button" class="graph-template" data-graph-template="linear"><svg viewBox="0 0 100 32"><path d="M4 28 L96 4" fill="none" stroke="#63b5ff" stroke-width="2.5"/></svg>Linear</button>
+          <button type="button" class="graph-template" data-graph-template="easeOut"><svg viewBox="0 0 100 32"><path d="M4 28 C8 22 25 4 96 4" fill="none" stroke="#63b5ff" stroke-width="2.5"/></svg>Ease Out</button>
+          <button type="button" class="graph-template" data-graph-template="easeIn"><svg viewBox="0 0 100 32"><path d="M4 28 C75 28 92 8 96 4" fill="none" stroke="#63b5ff" stroke-width="2.5"/></svg>Ease In</button>
+          <button type="button" class="graph-template" data-graph-template="smooth"><svg viewBox="0 0 100 32"><path d="M4 28 C28 28 72 4 96 4" fill="none" stroke="#63b5ff" stroke-width="2.5"/></svg>Smooth</button>
+          <button type="button" class="graph-template" data-graph-template="snappy"><svg viewBox="0 0 100 32"><path d="M4 28 C8 28 85 4 96 4" fill="none" stroke="#63b5ff" stroke-width="2.5"/></svg>Snappy</button>
+        </div>
+        <button class="primary row-gap" id="btnGraph">Apply Graph</button>
+        <div class="preset-row row-gap"><input type="text" id="graphPresetName" placeholder="Nama graph preset"><button type="button" id="btnSaveGraph">Save</button></div>
+        <div class="saved-preset-row row-gap"><select id="savedGraphPreset" required><option value="" disabled selected>Pilih preset</option></select><button type="button" id="btnLoadGraphPreset">Load</button><button type="button" id="btnDeleteGraphPreset">Delete</button></div>
+        <details class="section disclosure row-gap"><summary>Graph History</summary><div class="disclosure-content"><div class="preset-row"><span class="hint">Graph yang dimuat atau diterapkan.</span><button type="button" id="btnClearGraphHistory">Clear</button></div><div id="graphHistory" class="history-list hint">Belum ada graph.</div></div></details>
+      </div>
+    </section>
+
+    <section class="feature-panel" id="panelAlign">
+      <div class="section">
+        <div class="section-title"><span class="section-icon">☷</span> &nbsp; Align to Composition</div>
+        <div class="hint">Pilih layer, lalu tentukan posisinya terhadap composition.</div>
+        <div class="align-group"><div class="align-label">HORIZONTAL</div><div class="grid-3">
+          <button class="align-button" type="button" data-align="left"><span class="align-mark">⇤</span><span>Left</span></button>
+          <button class="align-button" type="button" data-align="centerH"><span class="align-mark">↔</span><span>Center</span></button>
+          <button class="align-button" type="button" data-align="right"><span class="align-mark">⇥</span><span>Right</span></button>
+        </div></div>
+        <div class="align-group"><div class="align-label">VERTICAL</div><div class="grid-3">
+          <button class="align-button" type="button" data-align="top"><span class="align-mark">⇡</span><span>Top</span></button>
+          <button class="align-button" type="button" data-align="centerV"><span class="align-mark">↕</span><span>Middle</span></button>
+          <button class="align-button" type="button" data-align="bottom"><span class="align-mark">⇣</span><span>Bottom</span></button>
+        </div></div>
+      </div>
+    </section>
+
+    <section class="feature-panel" id="panelPalette">
+      <div class="section">
+        <div class="section-title"><span class="section-icon">◧</span> &nbsp; Color Palette</div>
+        <div class="palette-options" aria-label="Jumlah warna palette">
+          <button class="palette-count" type="button" data-palette-count="4">4</button>
+          <button class="palette-count active" type="button" data-palette-count="5">5</button>
+          <button class="palette-count" type="button" data-palette-count="6">6</button>
+          <button class="palette-count" type="button" data-palette-count="7">7</button>
+           <button type="button" id="btnArrangePalette" title="Susun warna berdasarkan hue">Atur</button>
+        </div>
+        <div id="paletteSwatches" class="swatches" aria-label="Warna palette"></div>
+        <div class="palette-tools"><input type="hidden" id="backgroundColor" value="#ffffff"><button type="button" class="color-trigger" id="paletteColorTrigger" aria-label="Buka pemilih warna palette"></button><input type="text" id="paletteHexInput" value="#ffffff" aria-label="Kode warna HEX" maxlength="7" placeholder="#RRGGBB"></div>
+        <div class="compact-actions palette-actions row-gap"><button type="button" id="btnAddPaletteColor">Add</button><button type="button" id="btnDeletePaletteColor" disabled>Delete</button></div>
+        <button type="button" class="primary row-gap" id="btnColorBackground">Create Solid</button>
+        <hr class="palette-divider">
+        <div class="palette-subtitle">Save Current Palette</div>
+        <div class="palette-save-row"><input type="text" id="paletteName" aria-label="Nama palette" placeholder="Nama palette"><button type="button" id="btnSavePalette">Save Palette</button></div>
+        <div class="palette-subtitle">Saved Palettes</div>
+        <div id="savedPalettes" class="saved-palettes"><span class="palette-empty">Belum ada palette tersimpan.</span></div>
+        <hr class="palette-divider">
+        <div class="palette-subtitle"><span>Recent Colors</span><button type="button" id="btnClearPaletteHistory">Clear</button></div>
+        <div id="paletteHistory" class="palette-history row-gap"></div>
+      </div>
+    </section>
+
+    <section class="feature-panel" id="panelPrecomp">
+      <div class="section">
+        <div class="section-title"><span class="section-icon">▣</span> &nbsp; Pre-compose</div>
+        <div class="hint themed-note">Buat komposisi dari layer terpilih.</div>
+        <label class="align-label row-gap" for="precompName">Nama komposisi</label>
+        <input type="text" id="precompName" placeholder="Kosong = Precomp">
+        <label class="check"><input type="checkbox" id="moveAttrs" checked> Pindahkan semua atribut</label>
+        <button class="primary row-gap" id="btnPrecomp">Buat Precomp</button>
+      </div>
+    </section>
+
+    <section class="feature-panel" id="panelActions">
+      <div class="section action-card">
+        <div class="section-title"><span class="section-icon">⚒</span> &nbsp; Quick Actions</div>
+        <button class="primary action-main-button" type="button" id="btnAutoCut">Cut at Playhead</button>
+      </div>
+      <details class="section disclosure action-card action-disclosure">
+        <summary>Beat Markers</summary>
+        <div class="disclosure-content">
+          <label class="action-beat-label" for="beatBpm">TEMPO · BPM</label>
+          <div class="action-field-row"><input type="number" id="beatBpm" value="120" min="1" max="300" aria-label="Tempo BPM"><button type="button" id="btnBeatGrid">Create Markers</button></div>
+        </div>
+      </details>
+      <details class="section disclosure action-card action-disclosure">
+        <summary>Selected Layers</summary>
+        <div class="disclosure-content">
+          <label class="check action-toggle"><input type="checkbox" id="enable3d" checked> Enable 3D layer switch</label>
+          <button class="primary action-apply" type="button" id="btnApply3d">Apply 3D Switch</button>
+          <div class="action-fields">
+            <div class="action-field true-comp-field">
+              <label>TRUE COMP</label>
+              <div class="action-field-row true-comp-row"><label class="true-comp-count-label" for="trueCompCount">Jumlah</label><input type="number" id="trueCompCount" value="1" min="1" max="20" aria-label="Jumlah True Comp"><button type="button" id="btnTrueComp">Buat True Comp</button></div>
+              <div class="hint true-comp-hint">Salinan mandiri; sumber tetap aman.</div>
+            </div>
+            <div class="action-field">
+              <label for="layerPrefix">RENAME PREFIX</label>
+              <div class="action-field-row"><input type="text" id="layerPrefix" placeholder="Contoh: Shot_"><button type="button" id="btnRenameLayers">Rename Layers</button></div>
+            </div>
+            <div class="action-field">
+              <label for="staggerFrames">STAGGER · FRAMES</label>
+              <div class="action-field-row"><input type="number" id="staggerFrames" value="2" min="0" max="300"><button type="button" id="btnStagger">Stagger Layers</button></div>
+            </div>
+          </div>
+        </div>
+      </details>
+      <details class="section disclosure"><summary>Recent Activity</summary><div class="disclosure-content hint" id="activityLog">Belum ada aksi.</div></details>
+    </section>
+
+    <section class="feature-panel" id="panelAI">
+      <div class="section ai-shell">
+        <div class="ai-chat-head"><span class="ai-avatar">✦</span><span class="ai-head-copy"><strong>Alaska Assistant</strong><span>Asisten lokal · Perintah ditinjau sebelum dijalankan</span></span></div>
+        <div class="ai-chat-log" id="aiChatLog" aria-live="polite"><div class="ai-message assistant">Hai! Saya bisa bantu menjalankan fitur Alaska di After Effects. Coba: “align center”, “buat precomp”, “3D”, “cut”, “beat 120 BPM”, “scale 80”, atau “graph smooth”.</div></div>
+        <div class="ai-chat-input"><textarea id="aiPrompt" placeholder="Tulis instruksi… (Enter untuk kirim)" aria-label="Pesan untuk Alaska Assistant"></textarea><button class="primary" type="button" id="btnAiPlan">Kirim</button></div>
+        <div class="ai-approval"><label class="check"><input type="checkbox" id="approvalMode" checked> Konfirmasi sebelum menjalankan aksi</label></div>
+        <div class="ai-action-list" id="aiPlan"></div>
+        <div class="hint ai-capabilities" id="aiStatus"></div>
+      </div>
+      <details class="section disclosure">
+        <summary>Batas kemampuan</summary>
+        <div class="disclosure-content">
+        <div class="hint">Asisten ini berjalan lokal dengan perintah yang didukung extension, bukan model ChatGPT cloud. Ia dapat mengatur transform layer, align, precomp, graph, solid, cut, beat, 3D, rename, dan stagger. Ia tidak dapat mengedit instruksi bebas yang belum didukung.</div>
+        </div>
+      </details>
+    </section>
+
+    <section class="feature-panel" id="panelBackground">
+      <div class="section">
+        <div class="section-title"><span class="section-icon">◴</span> &nbsp; Background</div>
+        <label class="file-picker">Image / MP4<input type="file" id="themeFile" accept="image/*,video/mp4"></label>
+        <div class="setting-row"><label for="themeDimmer">Opacity</label><input type="range" id="themeDimmer" min="0" max="90" value="58"><output id="themeDimmerValue">58%</output></div>
+        <button class="row-gap" type="button" id="btnClearTheme">Reset background</button>
+      </div>
+      <details class="section disclosure">
+        <summary>Appearance</summary>
+        <div class="disclosure-content">
+        <div class="align-label">THEME</div>
+        <div class="theme-presets">
+          <button type="button" class="theme-chip selected" data-theme-color="#2585e8" style="background:#2585e8" title="Ocean Blue" aria-label="Ocean Blue"></button>
+          <button type="button" class="theme-chip" data-theme-color="#9b6bff" style="background:#9b6bff" title="Violet" aria-label="Violet"></button>
+          <button type="button" class="theme-chip" data-theme-color="#13b887" style="background:#13b887" title="Mint" aria-label="Mint"></button>
+          <button type="button" class="theme-chip" data-theme-color="#e59b2b" style="background:#e59b2b" title="Amber" aria-label="Amber"></button>
+          <button type="button" class="theme-chip" data-theme-color="#e45d83" style="background:#e45d83" title="Rose" aria-label="Rose"></button>
+        </div>
+        <div class="custom-theme-row"><input type="hidden" id="customThemeColor" value="#2585e8"><button type="button" class="color-trigger theme-color-trigger" id="themeColorTrigger" aria-label="Pilih warna tema khusus"></button><span class="hint">Custom theme</span></div>
+        <div class="setting-row"><label for="panelOpacity">Cards</label><input type="range" id="panelOpacity" min="20" max="100" value="78"><output id="panelOpacityValue">78%</output></div>
+        <div class="setting-row"><label for="textOpacity">Text</label><input type="range" id="textOpacity" min="40" max="100" value="100"><output id="textOpacityValue">100%</output></div>
+        <button class="row-gap" type="button" id="btnResetAppearance">Reset</button>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <div id="status">Status: Ready.</div>
+  <div class="color-picker-overlay" id="colorPickerModal" aria-hidden="true">
+    <div class="color-picker-dialog" role="dialog" aria-modal="true" aria-labelledby="colorPickerTitle">
+      <div class="color-picker-header"><span id="colorPickerTitle">Pilih warna</span><button type="button" class="color-picker-close" id="btnCloseColorPicker" aria-label="Tutup">×</button></div>
+      <div class="color-plane" id="colorPlane" role="slider" aria-label="Saturasi dan kecerahan warna" aria-valuemin="0" aria-valuemax="100" tabindex="0"><span class="color-plane-cursor" id="colorPlaneCursor"></span></div>
+      <input type="range" class="color-hue" id="colorHue" min="0" max="360" value="210" aria-label="Hue">
+      <div class="color-picker-fields"><span class="color-preview" id="colorPreview"></span><label>HEX<input type="text" id="colorPickerHex" maxlength="7" value="#2585e8" placeholder="#RRGGBB" aria-label="Warna HEX"></label></div>
+      <div class="color-picker-actions"><button type="button" id="btnCancelColorPicker">Cancel</button><button type="button" class="primary" id="btnApplyColorPicker">Apply</button></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="actionConfirmModal" role="presentation">
+    <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div class="confirm-title" id="confirmTitle"><span class="theme-accent">✦</span> Alaska AI · Konfirmasi</div>
+      <div class="confirm-message" id="confirmMessage">Jalankan aksi ini?</div>
+      <div class="confirm-actions"><button type="button" id="btnCancelAction">Batal</button><button type="button" class="primary" id="btnConfirmAction">Setujui &amp; Jalankan</button></div>
+    </div>
+  </div>
+  <nav class="bottom-nav" aria-label="Feature navigation">
+    <button class="nav-button active" type="button" data-panel="panelGraph"><span class="nav-icon">⌁</span><span>Graph</span></button>
+    <button class="nav-button" type="button" data-panel="panelAlign"><span class="nav-icon">☷</span><span>Align</span></button>
+    <button class="nav-button" type="button" data-panel="panelPalette"><span class="nav-icon">◧</span><span>Palette</span></button>
+    <button class="nav-button" type="button" data-panel="panelPrecomp"><span class="nav-icon">▣</span><span>Precomp</span></button>
+    <button class="nav-button" type="button" data-panel="panelActions"><span class="nav-icon">⚒</span><span>Actions</span></button>
+    <button class="nav-button" type="button" data-panel="panelBackground"><span class="nav-icon">◴</span><span>UI</span></button>
+    <button class="nav-button" type="button" data-panel="panelAI"><span class="nav-icon">✦</span><span>Alaska AI</span></button>
+  </nav>
+
+  <script>
+    if (/[?&]dev=1(?:&|$)/.test(window.location.search)) {
+      document.write('<script src="mock-cep.js"><\/script>');
+    }
+  </script>
+  <script src="../lib/CSInterface.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
